@@ -1,0 +1,13 @@
+.kityminder-list-btn {
+    word-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
+    height:70px;
+}
+.kityminder-list-btn-group {
+    width:100%;
+}
+
+.model-text {
+    text-align: center;
+}

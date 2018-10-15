@@ -1,0 +1,146 @@
+{% extends "blog/base2.html" %}
+{% load custom_filter %}
+
+{% block title %}
+    <title>思维导图列表</title>
+{% endblock %}
+{% block css %}
+    <!-- bower:css -->
+	<link rel="stylesheet" href="/static/bower_components/bootstrap/dist/css/bootstrap.css" />
+	<link rel="stylesheet" href="/static/bower_components/color-picker/dist/color-picker.min.css" />
+	<!-- endbower -->
+    <link rel="stylesheet" href="/static/css/kityminder_list.css" />
+{% endblock %}
+{% block js %}
+    <!-- bower:js -->
+    <script src="/static/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/static/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/static/bower_components/angular/angular.js"></script>
+    <script src="/static/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="/static/js/kityminder_list.js"></script>
+    <!-- endbower -->
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-bottom:50px;" ng-app="kityminder-list" ng-controller="KittyminderListController">
+        <div class="row" data-ng-init="load()">
+            <div class="col-xs-3 col-sm-3">
+                <div class="btn-group-vertical kityminder-list-btn-group">
+                    <button type="button" class="btn btn-info btn-lg disabled kityminder-list-btn">
+                        <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;模块选择
+                    </button>
+                    <button class="btn btn-info btn-lg  kityminder-list-btn active" type="button" ng-click="selectCategory(0)">全&nbsp;&nbsp;部</button>
+                </div>
+            </div>
+            <div class="col-xs-9 col-sm-9">
+                <div>
+                    <div class="input-group" id="filter-type" style="margin-bottom:5px;width:50%;display:inline">
+                        <input type="text" id="filter-content" class="form-control" style="width:auto;">
+                        <button type="button" class="btn btn-default" ng-click="searchWithFilter()">搜索</button>
+                    </div><!-- /input-group -->
+                    <div id="mindmap-list-new-button-group" style="float:right;margin-bottom:5px;display:inline">
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#maplist-new-modal">
+                            <span class="glyphicon glyphicon-plus" ng-click="openNewMapModal()"></span>
+                            新建
+                        </button>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#maplist-load-modal">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            载入
+                        </button>
+                    </div>
+                </div>
+                <table class="table table-striped" style="background:white; margin-bottom:0px;">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>标题</th>
+                        <th>组</th>
+                        <th>编辑时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="maplist-new-modal" tabindex="-1" role="dialog" aria-labelledby="mapListNewModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="mapListNewModalLabel">新建思维导图</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form">
+                            <label for="title">标题</label>
+                            <input type="text" class="form-control" placeholder="请输入标题" ng-model="new_title" id="maplist-new-title">
+                            <label for="group">组</label>
+                            <div id="maplist-new-modal-group-radio-div">
+                            </div>
+                            <label for="model">模块</label>
+                            <div id="maplist-new-modal-category-radio-div">
+                                <label class="radio-inline">
+                                    <input type="radio" name="model" id="optionsRadios3" value="option1" checked> 选项 1
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="model" id="optionsRadios4"  value="option2"> 选项 2
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click ="deleteNewModalInfo()">关闭</button>
+                        <button type="button" class="btn btn-primary" ng-click="newMindmap()">新建</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+        <div class="modal fade" id="maplist-load-modal" tabindex="-1" role="dialog" aria-labelledby="mapListLoadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="mapListLoadModalLabel">导入xmind</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form">
+                            <label for="title">标题</label>
+                            <input type="text" class="form-control" placeholder="请输入标题" ng-model="load_title"  id="maplist-load-title">
+                            <label for="file">文件上传</label>
+                            <input id="lefile" type="file" style="display:none" file-model="LoadFile">
+                            <div class="input-append">
+                                <input id="photoCover" class="input-large" type="text" style="height:30px;">
+                                <a class="btn btn-default" onclick="$('input[id=lefile]').click();">打开</a>
+                            </div>
+                            
+                            <script type="text/javascript">
+                                $('input[id=lefile]').change(function() {
+                                $('#photoCover').val($(this).val());
+                                });
+                            </script>
+                            <label for="group">组</label>
+                            <div id="maplist-load-modal-group-radio-div">
+                            </div>
+                            <label for="model">模块</label>
+                            <div id="maplist-load-modal-category-radio-div">
+                                <label class="radio-inline">
+                                    <input type="radio" name="model" id="optionsRadios3" value="option1" checked> 选项 1
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="model" id="optionsRadios4"  value="option2"> 选项 2
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click ="deleteLoadModalInfo()">关闭</button>
+                        <button type="button" class="btn btn-primary" ng-click="loadMindmap()">导入</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+    </div>
+{% endblock %}
